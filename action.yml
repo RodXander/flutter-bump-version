@@ -1,4 +1,9 @@
-name: Versioning
+name: Flutter versioning
+description: This action increases the version number of a Flutter project when a pull request is merged.
+inputs:
+  token:
+    description: 'The GitHub token to use'
+    default: ${{ secrets.GITHUB_TOKEN }}
 
 on:
   pull_request:
@@ -12,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          token: ${{ inputs.token }}
 
       - name: Increase version
         id: versioning
@@ -48,5 +55,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ inputs.token }}
           branch: main
