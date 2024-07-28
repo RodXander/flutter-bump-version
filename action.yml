@@ -1,11 +1,14 @@
 name: Flutter Bump Version
 description: This action increases the version number of a Flutter project when a pull request is merged.
-icon: arrow-up-circle
-color: 54c5f8
+
 inputs:
   token:
     description: 'The GitHub token to use'
     default: ${{ secrets.GITHUB_TOKEN }}
+
+branding:
+  icon: arrow-up-circle
+  color: 54c5f8
 
 on:
   pull_request:
