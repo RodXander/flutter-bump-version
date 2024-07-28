@@ -1,4 +1,4 @@
-name: Flutter versioning
+name: Flutter Bump Version
 description: This action increases the version number of a Flutter project when a pull request is merged.
 inputs:
   token:
