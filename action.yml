@@ -6,6 +6,10 @@ inputs:
     description: 'The GitHub token to use'
     default: ${{ secrets.GITHUB_TOKEN }}
 
+  branch:
+    description: 'The branch to checkout and to push the changes to'
+    default: 'main'
+
 branding:
   icon: arrow-up-circle
   color: blue
@@ -23,6 +27,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
         with:
+          ref: ${{ inputs.branch }}
           token: ${{ inputs.token }}
 
       - name: Increase version
@@ -61,4 +66,4 @@ jobs:
         uses: ad-m/github-push-action@v0.6.0
         with:
           github_token: ${{ inputs.token }}
-          branch: main
+          branch: ${{ inputs.branch }}
