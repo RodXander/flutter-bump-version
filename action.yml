@@ -12,8 +12,8 @@ inputs:
     default: 'main'
 
 branding:
-  icon: arrow-up-circle
-  color: blue
+  icon: 'arrow-up-circle'
+  color: 'blue'
 
 runs:
   using: 'composite'
