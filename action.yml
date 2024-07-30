@@ -4,10 +4,11 @@ description: This action increases the version number of a Flutter project when 
 inputs:
   token:
     description: 'The GitHub token to use'
-    default: ${{ secrets.GITHUB_TOKEN }}
+    required: true
 
   branch:
     description: 'The branch to checkout and to push the changes to'
+    required: false
     default: 'main'
 
 branding:
