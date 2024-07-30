@@ -27,10 +27,31 @@ In your workflow file, add the following step:
 
 ```
 - name: Bump Version
-  uses: RodXander/flutter-bump-version@v1
+  uses: RodXander/flutter-bump-version@v0.0.02
+  with:
+    token: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+Also, to set  when the action should be triggered, you can use the following example for when a PR is merged or manually triggered:
+
+```
+on:
+    workflow_dispatch: #Trigger manually
+    pull_request:
+        types: [closed] #Trigger only on closed PRs
+    
+jobs:
+    bump_version:
+        if: github.event.pull_request.merged == true #Skip if the PR was not merged
+        runs-on: ubuntu-latest
+        
+        steps:
+            ...
+```
+
+You can use whatever condition works best for you.
 
 ## Inputs
 
-- `branch`: The branch where the changes will be pushed. Default: `main`.
-- `token`: The GitHub token used to checkout and push. Default: `${{ secrets.GITHUB_TOKEN }}`. On protected branches, you may need to create a Personal Access Token as shown [here](https://github.com/ad-m/github-push-action/blob/master/docs/personal-acces-token.md#creation-of-a-personal-access-token), set that token as a secret in your repository and pass it as input.
+- `branch`: Optional. The branch where the changes will be pushed. Default: `main`.
+- `token`: Required. The GitHub token used to checkout and push. You should use `${{ secrets.GITHUB_TOKEN }}`, but in protected branches, you may need to create a Personal Access Token as shown [here](https://github.com/ad-m/github-push-action/blob/master/docs/personal-acces-token.md#creation-of-a-personal-access-token), set that token as a secret in your repository and pass it as input, like `${{ secrets.PAT_TOKEN }}`.
