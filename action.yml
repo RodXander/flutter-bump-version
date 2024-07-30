@@ -14,56 +14,51 @@ branding:
   icon: arrow-up-circle
   color: blue
 
-on:
-  pull_request:
-    types: [closed]
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ inputs.branch }}
+        token: ${{ inputs.token }}
 
-jobs:
-  increase-version:
-    if: github.event.pull_request.merged == true
-    runs-on: ubuntu-latest
+    - name: Increase version
+      id: versioning
+      shell: bash
+      run: |
+        # Extracting the current build number
+        buildNumber=$(grep 'version: ' pubspec.yaml | sed 's/.*+//')
+        
+        # Incrementing the build number
+        newBuildNumber=$((buildNumber + 1))
+        
+        # Pad the newBuildNumber with leading zeros to ensure it has at least 4 digits
+        paddedBuildNumber=$(printf "%04d" "$newBuildNumber")
+        
+        # Extracting parts for the new version
+        minor=${paddedBuildNumber:${#paddedBuildNumber}-2}
+        middle=${paddedBuildNumber:${#paddedBuildNumber}-3:1}
+        major=${paddedBuildNumber:0:${#paddedBuildNumber}-3}
+        
+        # Construct the new version
+        newVersion="$major.$middle.$minor"
+        
+        # Update pubspec.yaml with the new version and build number
+        sed -i "s/version: .*/version: $newVersion+$newBuildNumber/" pubspec.yaml
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ inputs.branch }}
-          token: ${{ inputs.token }}
+        echo "::set-output name=version::$newVersion"
 
-      - name: Increase version
-        id: versioning
-        run: |
-          # Extracting the current build number
-          buildNumber=$(grep 'version: ' pubspec.yaml | sed 's/.*+//')
-          
-          # Incrementing the build number
-          newBuildNumber=$((buildNumber + 1))
-          
-          # Pad the newBuildNumber with leading zeros to ensure it has at least 4 digits
-          paddedBuildNumber=$(printf "%04d" "$newBuildNumber")
-          
-          # Extracting parts for the new version
-          minor=${paddedBuildNumber:${#paddedBuildNumber}-2}
-          middle=${paddedBuildNumber:${#paddedBuildNumber}-3:1}
-          major=${paddedBuildNumber:0:${#paddedBuildNumber}-3}
-          
-          # Construct the new version
-          newVersion="$major.$middle.$minor"
-          
-          # Update pubspec.yaml with the new version and build number
-          sed -i "s/version: .*/version: $newVersion+$newBuildNumber/" pubspec.yaml
+    - name: Commit changes
+      shell: bash
+      run: |
+        git config --local user.email 'action@github.com'
+        git config --local user.name 'GitHub Action'
+        git add pubspec.yaml
+        git commit -m '${{ steps.versioning.outputs.version }}'
 
-          echo "::set-output name=version::$newVersion"
-
-      - name: Commit changes
-        run: |
-          git config --local user.email 'action@github.com'
-          git config --local user.name 'GitHub Action'
-          git add pubspec.yaml
-          git commit -m '${{ steps.versioning.outputs.version }}'
-
-      - name: Push changes
-        uses: ad-m/github-push-action@v0.6.0
-        with:
-          github_token: ${{ inputs.token }}
-          branch: ${{ inputs.branch }}
+    - name: Push changes
+      uses: ad-m/github-push-action@v0.6.0
+      with:
+        github_token: ${{ inputs.token }}
+        branch: ${{ inputs.branch }}
